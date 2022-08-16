@@ -26,6 +26,7 @@ contract BuyMeACoffee {
     // Address of contract deployer. Marked payable so that
     // we can withdraw to this address later.
     address payable owner;
+    address payable receiver;
 
     // List of all memos received from coffee purchases.
     Memo[] memos;
@@ -34,6 +35,7 @@ contract BuyMeACoffee {
         // Store the address of the deployer as a payable address.
         // When we withdraw funds, we'll withdraw here.
         owner = payable(msg.sender);
+        receiver = payable(msg.sender);
     }
 
     /**
@@ -73,6 +75,11 @@ contract BuyMeACoffee {
      * @dev send the entire balance stored in this contract to the owner
      */
     function withdrawTips() public {
-        require(owner.send(address(this).balance));
+        require(receiver.send(address(this).balance));
+    }
+
+    function setWithdrawalAddress(address payable _newAddress) public {
+        require(msg.sender == owner,"only owner can call this contract");
+        receiver = _newAddress;
     }
 }

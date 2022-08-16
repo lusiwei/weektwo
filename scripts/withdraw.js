@@ -10,7 +10,7 @@ async function getBalance(provider, address) {
 
 async function main() {
   // Get the contract that has been deployed to Goerli.
-  const contractAddress="0x6d17dD1489Cb99648dD38f1582C5D08d88899FB8";
+  const contractAddress="0x5b9192f4A99F0e71e98F627faa959A6c14566163";
   const contractABI = abi.abi;
 
   // Get the node connection and wallet connection.
@@ -18,7 +18,7 @@ async function main() {
 
   // Ensure that signer is the SAME address as the original contract deployer,
   // or else this script will fail with an error.
-  const signer = new hre.ethers.Wallet(process.env.PRIVATE_KEY, provider);
+  const signer = new hre.ethers.Wallet(process.env.PK, provider);
 
   // Instantiate connected contract.
   const buyMeACoffee = new hre.ethers.Contract(contractAddress, contractABI, signer);
@@ -30,6 +30,9 @@ async function main() {
 
   // Withdraw funds if there are funds to withdraw.
   if (contractBalance !== "0.0") {
+    console.log("set withdraw address", process.env.WITHDRAW_ADDRESS);
+    const setTx = await buyMeACoffee.setWithdrawalAddress(process.env.WITHDRAW_ADDRESS);
+    await setTx.wait();
     console.log("withdrawing funds..")
     const withdrawTxn = await buyMeACoffee.withdrawTips();
     await withdrawTxn.wait();
